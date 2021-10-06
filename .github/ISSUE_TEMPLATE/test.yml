@@ -1,0 +1,12 @@
+name: Bug Report
+description: File a bug report
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: checkboxes
+    id: reinstate
+    attributes:
+      label: Reinstate Users Access
+      description: If this user was removed due to automation, do you wish to restore access to the repositories they had access to prior to losing access to the VA org?
+      options:
+        - label: Restore access to previously accessible repositories and teams for this user
