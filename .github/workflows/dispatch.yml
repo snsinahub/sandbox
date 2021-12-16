@@ -8,7 +8,7 @@ on:
         required: true
 jobs:
   build:
-    name: build-${{ github.events.inputs.test-name }}
+    name: ${{ github.event.inputs.test-name }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
