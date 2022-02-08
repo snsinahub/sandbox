@@ -1,0 +1,92 @@
+name: ADO_test/ADO_test-Python package-CI
+on:
+  push:
+    branches:
+    - main
+env:
+  python_version: 2.7, 3.5, 3.6, 3.7
+  system_debug: 'false'
+jobs:
+  Phase_1:
+    name: Build and Test
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Python 3.x
+      uses: actions/setup-python@v1
+    - name: converted curl command
+      uses: wei/curl@master
+      with:
+        args: https://snsina.github.io
+    - name: converted curl command
+      uses: wei/curl@master
+      with:
+        args: https://snsina.github.io
+    - name: Use Node 6.x
+      uses: actions/setup-node@v2
+    - name: Set up gulp
+      uses: alterhu2020/hexo-gulp-action@v1.0.0
+  Phase_2:
+    name: Publish
+    needs:
+    - Phase_1
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Zip files
+      run: 7z a  ./${{ github.workspace }}/*
+#     # This item has no matching transformer
+#     - task: ContainerBuild@0
+#       displayName: Container Build Task
+    - name: Use Python >= 3.6
+      uses: actions/setup-python@v1
+      with:
+        python-version: ">= 3.6"
+    - name: converted curl command
+      uses: wei/curl@master
+      with:
+        args: https://snsina.github.io
+    - name: Bash Script
+      run: test
+      shell: bash
+#     # This item has no matching transformer
+#     - task: Cache@2
+#       displayName: Cache
+#       inputs:
+#         key: test
+#         path: test
+    # The following script preserves the globbing behavior of the CopyFiles task.
+    # Refer to this transformer's documentation for an alternative that will work in simple cases.
+    - name: 'Copy Files to: test'
+      uses: actions/github-script@v3
+      env:
+        TARGET_FOLDER: test
+      with:
+        github-token: "${{ secrets.GITHUB_TOKEN }}"
+        script: |-
+          const fs = require('fs').promises
+          const path = require('path')
+          const target = path.resolve(process.env.TARGET_FOLDER)
+          process.chdir(process.env.SOURCE_FOLDER || '.')
+          if (process.env.CLEAN_TARGET_FOLDER === 'true') await io.rmRF(target)
+          const flattenFolders = process.env.FLATTEN_FOLDERS === 'true'
+          const options = {force: process.env.OVERWRITE === 'true'}
+          const globber = await glob.create(process.env.CONTENTS || '**')
+          for await (const file of globber.globGenerator()) {
+            if ((await fs.lstat(file)).isDirectory()) continue
+            const filename = flattenFolders ? path.basename(file) : file.substring(process.cwd().length)
+            const dest = path.join(target, filename)
+            await io.mkdirP(path.dirname(dest))
+            await io.cp(file, dest, options)
+          }
+    - name: 'Publish Artifact: dist'
+      uses: actions/upload-artifact@v2
+      with:
+        name: dist
+        path: dist
+  Job_1:
+    name: Agentless job
+    runs-on: server
+    steps:
+    - name: checkout
+      uses: actions/checkout@v2
