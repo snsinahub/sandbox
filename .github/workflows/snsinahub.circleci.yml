@@ -1,0 +1,68 @@
+name: ADO_test/snsinahub.circleci
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+    branches:
+    - main
+env:
+  tag: "${{ github.run_id }}"
+jobs:
+  Build-Build:
+    name: Build
+    runs-on: ubuntu-20.18
+    steps:
+    - name: checkout
+      uses: actions/checkout@v2
+    - name: Build an image
+      run: docker build ${{ github.workspace }} --file "${{ github.workspace }}/Dockerfile"
+  Build-print_default_working_directory:
+    name: print_dir_path
+    runs-on: ubuntu-20.18
+    steps:
+    - name: checkout
+      uses: actions/checkout@v2
+    - name: converted curl command
+      uses: wei/curl@master
+      with:
+        args: https://snsina.github.io
+  Deploy_sandbox-Deploy_sandbox:
+    name: Print job name
+    needs:
+    - Build-Build
+    - Build-print_default_working_directory
+    runs-on: ubuntu-20.18
+    environment:
+      name: sandbox
+    env:
+      url: www.snsina.com
+    if: github.RUN_NUMBER == 1
+    steps:
+    - name: checkout
+      uses: actions/checkout@v2
+    - name: download artifact
+      uses: actions/download-artifact@v2
+    - name: converted curl command
+      uses: wei/curl@master
+      with:
+        args: https://snsina.github.io
+  Deploy_prod-Deploy:
+    name: Print job name
+    needs:
+    - Deploy_sandbox-Deploy_sandbox
+    runs-on: ubuntu-20.18
+    environment:
+      name: prod
+    env:
+      url: snsina.github.io
+    if: github.RUN_NUMBER == 1
+    steps:
+    - name: checkout
+      uses: actions/checkout@v2
+    - name: download artifact
+      uses: actions/download-artifact@v2
+    - name: converted curl command
+      uses: wei/curl@master
+      with:
+        args: https://snsina.github.io
